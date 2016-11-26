@@ -1,0 +1,47 @@
+# This is a walk through of the programming to try and understand it better.
+# At the highest level we know that the computer reads through all of the code
+# top to bottom. I will try to articulate each of the 'actions' the computer
+# will take along the way.
+
+$ python bin/app.py
+
+1 - $ python bin/app.py: This runs the web application putting Bash 
+	in web server mode and setting up a few things including:
+		A - Setting the URLs it is handling with web.application
+		B - Setting where session info is stored with web.session.DiskStore
+		C - Setting the 'room' variable of session to None to start.
+		D - Does all of this locally rather than getting session info from
+			web.config._session.
+2 - When browser goes to http://localhost:8080/ several things happen:
+	A - class Index is called and the 'room' variable is set to the constant
+		variable START from module map.py which is 'central_corridor'
+	B - redirects to the page /game via web.seeother instruction
+3 - Because of the url instruction at the top of app.py when /game is called:
+	A - class GameEngine.GET decision invoked based on session.room value
+	B - 1st run session.room is central_corridor an instance of class Room()
+	C - GameEngine renders the show_room inside 'layout' via render.show_room
+		in templates passing in the central_corridor variable an instance
+		of class Room from map.py that passes a name & description pair. 
+		They are printed at the top of the page.
+	D - Below C is a web form with it's 'action' variable set to None so that
+		it goes no further because the next line has an if statement that
+		only runs if form.action is true.
+4 - Enter 'tell a joke' and Submit
+	A - Since session.room and form.action are both true meaning they contain
+		something the next line...
+	B - Invokes the 'go' function of the central_corridor instance of class Room
+		with the input of the form. Since 'tell a joke' matches an entry in
+		the dictionary for central_corridor it gets the value which in this case
+		is laser_weapon_armory.
+	C - Via session.room = session.room.go(form.action) the session.room is 
+		changed to laser_weapon_armory.
+	D - Via web.seeother("/game") the web page is refreshed and GameEngine is
+		reinvoked with the new session.room info passed in (3C above).
+5 - If anything other than one of the dict keys are submitted via the form
+	than session.room will be false at which point the you_died.html will be
+	passed into layout.
+	
+
+
+
+	
